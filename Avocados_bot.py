@@ -1,12 +1,14 @@
 import discord
 from discord.ext import commands
 import random
+import os
 
-# สร้างบอท
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+server_settings = {}
 
 welcome_messages = [
     "ยินดีต้อนรับ {member.mention} เข้าสู่บ้านนี้ 💖",
@@ -16,12 +18,54 @@ welcome_messages = [
     "ฮัลโหลล {member.mention} 💕 ดีใจที่นายเข้ามานะ!"
 ]
 
-# เมื่อบอทออนไลน์
+goodbye_messages = [
+    "ลาก่อน {member.name} 😢 ขอให้โชคดีนะ",
+    "{member.name} ออกจากเซิร์ฟแล้ว 💔",
+    "再见 {member.name} 👋 ไว้เจอกันใหม่",
+    "โอ้ยย {member.name} ทิ้งพวกเราไปแล้ว 🥲",
+    "บายยย {member.name} 🚪"
+]
+
 @bot.event
 async def on_ready():
     print(f"✅ บอทออนไลน์แล้ว: {bot.user}")
 
-# คำสั่งง่ายๆ
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def setwelcome(ctx, channel: discord.TextChannel):
+    guild_id = ctx.guild.id
+    if guild_id not in server_settings:
+        server_settings[guild_id] = {}
+    server_settings[guild_id]["welcome"] = channel.id
+    await ctx.send(f"✅ ตั้งค่าห้องต้อนรับเป็น {channel.mention} แล้ว")
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def setgoodbye(ctx, channel: discord.TextChannel):
+    guild_id = ctx.guild.id
+    if guild_id not in server_settings:
+        server_settings[guild_id] = {}
+    server_settings[guild_id]["goodbye"] = channel.id
+    await ctx.send(f"✅ ตั้งค่าห้องลาออกเป็น {channel.mention} แล้ว")
+
+@bot.event
+async def on_member_join(member):
+    guild_id = member.guild.id
+    if guild_id in server_settings and "welcome" in server_settings[guild_id]:
+        channel = bot.get_channel(server_settings[guild_id]["welcome"])
+        if channel:
+            message = random.choice(welcome_messages).format(member=member)
+            await channel.send(message)
+
+@bot.event
+async def on_member_remove(member):
+    guild_id = member.guild.id
+    if guild_id in server_settings and "goodbye" in server_settings[guild_id]:
+        channel = bot.get_channel(server_settings[guild_id]["goodbye"])
+        if channel:
+            message = random.choice(goodbye_messages).format(member=member)
+            await channel.send(message)
+
 @bot.command()
 async def แนะนำ(ctx):
     await ctx.send("นี่คือคำแนะนำจากบอท ✨: อย่าลืมพักผ่อนด้วยนะคะ!")
@@ -71,15 +115,13 @@ async def unmute(ctx, member: discord.Member):
     else:
         await ctx.send("❌ คนนี้ไม่ได้ถูกมิวท์อยู่")
 
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
-    if "สวัสดีครับ" in message.content or "สวัสดีคะ" in message.content or "สวัสดีคับ" in message.content:
+    if any(word in message.content for word in ["สวัสดีครับ", "สวัสดีคะ", "สวัสดีคับ"]):
         await message.channel.send("สวัสดีค่ะ 👋")
     await bot.process_commands(message)
 
-
 bot.run(os.environ['DISCORD_TOKEN'])
-
-
