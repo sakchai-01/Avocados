@@ -10,6 +10,13 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 server_settings = {}
 
+{
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
+
 welcome_messages = [
     "ยินดีต้อนรับ {member.mention} เข้าสู่บ้านนี้ 💖",
     "โอ้วว มาแล้วๆ {member.mention}! ปูพรมแดงต้อนรับเลย 🎉",
@@ -125,3 +132,4 @@ async def on_message(message):
     await bot.process_commands(message)
 
 bot.run(os.environ['DISCORD_TOKEN'])
+
