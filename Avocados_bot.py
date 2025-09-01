@@ -80,5 +80,6 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-bot.run(os.environ['MTQxMTk2MzQ3OTg5OTc2Njg3Ng.Gqdcm6.-wZfO8nQmPHZofreAI3mm-eInggySiR3XYTx3I'])
+bot.run(os.environ['DISCORD_TOKEN'])
+
 
