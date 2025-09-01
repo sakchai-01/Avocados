@@ -5,6 +5,21 @@ from flask import Flask
 import random
 import os
 
+
+
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def run():
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+    
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
@@ -126,19 +141,6 @@ async def on_message(message):
         await message.channel.send("สวัสดีค่ะ 👋")
     await bot.process_commands(message)
 
-
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "Bot is running!"
-
-def run():
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-
 keep_alive()
 bot.run(os.environ['DISCORD_TOKEN'])
+
